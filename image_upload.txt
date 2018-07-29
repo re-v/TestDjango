@@ -1,0 +1,25 @@
+@method_decorator(login_required(login_url='/'), name='dispatch')
+class CreateManyNewSalary(View):
+    '''
+    上传工资凭证
+    '''
+    def get(self,request):
+        return render(request, "web/salary/add_many_salary.html")
+
+    @method_decorator(csrf_exempt, name='dispatch')
+    def post(self,request):
+        r = {}
+        myimg = Attachments(request.POST,request.FILES)
+        if myimg:
+            f = request.FILES['file']
+            path = 'static/upload/images/' + f.name
+            pic = path.split('.')[0] + '.png'
+            with open(pic,'wb') as picture:
+                for c in f.chunks():
+                    picture.write(c)
+            credimage = CredImage()
+            credimage.file_path = 'static/upload/images/' + f.name
+            credimage.save()
+            r['status'] = '200'
+            r['msg'] = '成功！'
+            return HttpResponse(json.dumps(r, ensure_ascii=False))
